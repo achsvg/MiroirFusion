@@ -11,15 +11,15 @@ The code is far from being optimal nor clean, however from my testings it is wor
 The application uses the PCL visualizer and can also use GLFW to show the raycast from the camera (uncomment GL_INTEROP in gpu_def.h).
 
 Compiling
-=========
+---------
 CMake included.
 Requires PCL, GLFW, Boost, GLFW, GLEW.
 
 Commands (for PCL visualizer only)
-==================================
-F1 : show the raw depth map from depth sensor
-F2 : show the result of bilateral filtering on raw depth map
-F3 : show the TSDF 
-F4 : show the raycasted surface normal map
-F5 : show the corresponding vertices from filtered depth map and raycasted surface
+-----------------------------------
+F1 : show the raw depth map from depth sensor  
+F2 : show the result of bilateral filtering on raw depth map  
+F3 : show the TSDF   
+F4 : show the raycasted surface normal map  
+F5 : show the corresponding vertices from filtered depth map and raycasted surface  
 
