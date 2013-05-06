@@ -13,7 +13,7 @@ The application uses the PCL visualizer and can also use GLFW to show the raycas
 Compiling
 ---------
 CMake included.
-Requires PCL, GLFW, Boost, GLFW, GLEW.
+Requires PCL, GLFW, Boost, GLEW. First install PCL and all its dependencies (Boost, Qt) then unzip GLFW and GLEW. Use CMake to point to GLFW and GLEW's library and include folder. Generate the solution files with CMake.
 
 Commands (for PCL visualizer only)
 -----------------------------------

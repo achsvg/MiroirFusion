@@ -93,7 +93,7 @@ void GpuManager::createSharedTexture(int width, int height, cl_mem_flags flags, 
 	// Create CL image from Screen Texture – the CL kernel will write to this
 	cl_int err;
 	//cl_mem cl_screen;
-	cl_tex = clCreateFromGLTexture2D(context, CL_MEM_WRITE_ONLY, GL_TEXTURE_2D, 0, gl_tex, &err );
+	cl_tex = clCreateFromGLTexture(context, CL_MEM_WRITE_ONLY, GL_TEXTURE_2D, 0, gl_tex, &err );
 	assert(err == CL_SUCCESS);
 
 	//err = clEnqueueAcquireGLObjects(GpuManager::queue, 1, &cl_tex, 0,0,0);
