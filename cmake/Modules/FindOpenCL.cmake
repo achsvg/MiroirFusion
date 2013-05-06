@@ -1,97 +1,108 @@
+# Taken from http://gitorious.org/findopencl/findopencl 6/15/2010
+# Says it's public domain
+
 # - Try to find OpenCL
 # This module tries to find an OpenCL implementation on your system. It supports
-# AMD / ATI, Apple and NVIDIA implementations, but should work, too.
-#
-# To set manually the paths, define these environment variables:
-# OpenCL_INCPATH    - Include path (e.g. OpenCL_INCPATH=/opt/cuda/4.0/cuda/include)
-# OpenCL_LIBPATH    - Library path (e.h. OpenCL_LIBPATH=/usr/lib64/nvidia)
+# AMD / ATI, Apple and NVIDIA implementations, but shoudl work, too.
 #
 # Once done this will define
 #  OPENCL_FOUND        - system has OpenCL
 #  OPENCL_INCLUDE_DIRS  - the OpenCL include directory
 #  OPENCL_LIBRARIES    - link these to use OpenCL
 #
-# WIN32 should work, but is untested
 
-FIND_PACKAGE(PackageHandleStandardArgs)
+find_package( PackageHandleStandardArgs )
 
-SET (OPENCL_VERSION_STRING "0.1.0")
-SET (OPENCL_VERSION_MAJOR 0)
-SET (OPENCL_VERSION_MINOR 1)
-SET (OPENCL_VERSION_PATCH 0)
+set(OPENCL_VERSION_STRING "0.1.0")
+set(OPENCL_VERSION_MAJOR 0)
+set(OPENCL_VERSION_MINOR 1)
+set(OPENCL_VERSION_PATCH 0)
 
-IF (APPLE)
+if(APPLE)
 
-	FIND_LIBRARY(OPENCL_LIBRARIES OpenCL DOC "OpenCL lib for OSX")
-	FIND_PATH(OPENCL_INCLUDE_DIRS OpenCL/cl.h DOC "Include for OpenCL on OSX")
-	FIND_PATH(_OPENCL_CPP_INCLUDE_DIRS OpenCL/cl.hpp DOC "Include for OpenCL CPP bindings on OSX")
+  FIND_LIBRARY(OPENCL_LIBRARIES OpenCL DOC "OpenCL lib for OSX")
+  FIND_PATH(OPENCL_INCLUDE_DIRS OpenCL/cl.h DOC "Include for OpenCL on OSX")
+  FIND_PATH(_OPENCL_CPP_INCLUDE_DIRS OpenCL/cl.hpp DOC "Include for OpenCL CPP bindings on OSX")
 
-ELSE (APPLE)
+else(APPLE)
 
-	IF (WIN32)
+  if(WIN32)
+    if(NVIDIA_OPENCL)
+      # We could use CUDA_LIB_PATH, but this breaks when compiling 32 on 64
+      if(SYSTEM_IS_64)
+        set(OPENCL_LIB_DIR "$ENV{CUDA_PATH}/lib/x64/")
+      else()
+        set(OPENCL_LIB_DIR "$ENV{CUDA_PATH}/lib/Win32")
+      endif()
+      set(_OPENCL_INC_CAND "$ENV{CUDA_INC_PATH}")
+    elseif(AMD_OPENCL)
+      # The AMD SDK currently installs both x86 and x86_64 libraries
+      if(SYSTEM_IS_64)
+        set(OPENCL_LIB_DIR "$ENV{AMDAPPSDKROOT}/lib/x86_64")
+      else()
+        set(OPENCL_LIB_DIR "$ENV{AMDAPPSDKROOT}/lib/x86")
+      endif()
+      get_filename_component(_OPENCL_INC_CAND ${OPENCL_LIB_DIR}/../../include ABSOLUTE)
+    endif()
 
-		FIND_PATH(OPENCL_INCLUDE_DIRS CL/cl.h)
-		FIND_PATH(_OPENCL_CPP_INCLUDE_DIRS CL/cl.hpp)
+    if(SYSTEM_IS_64)
+      find_library(OPENCL_LIBRARIES OpenCL.lib ${OPENCL_LIB_DIR} "$ENV{CUDA_PATH}/lib/x64/" "$ENV{AMDAPPSDKROOT}/lib/x86_64")
+    else()
+      find_library(OPENCL_LIBRARIES OpenCL.lib ${OPENCL_LIB_DIR} "$ENV{CUDA_PATH}/lib/Win32" "$ENV{AMDAPPSDKROOT}/lib/x86")
+    endif()
 
-		# The AMD SDK currently installs both x86 and x86_64 libraries
-		# This is only a hack to find out architecture
-		IF( ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64" )
-			SET(OPENCL_LIB_DIR "$ENV{ATISTREAMSDKROOT}/lib/x86_64")
-		ELSE (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
-			SET(OPENCL_LIB_DIR "$ENV{ATISTREAMSDKROOT}/lib/x86")
-		ENDIF( ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64" )
-		
-		GET_FILENAME_COMPONENT(_OPENCL_INC_CAND ${OPENCL_LIB_DIR}/../../include ABSOLUTE)
-		
-		# nvidia SDK
-		IF( ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86" )
-			SET(OPENCL_LIB_DIR "$ENV{NVSDKCOMPUTE_ROOT}/OpenCL/common/lib/Win32")
-			GET_FILENAME_COMPONENT(_OPENCL_INC_CAND ${OPENCL_LIB_DIR}/../../inc ABSOLUTE)
-			
-			FIND_LIBRARY(oclUtils_LIBRARY_UTILS oclUtils32.lib PATHS ${OPENCL_LIB_DIR} ENV OpenCL_LIBPATH)
-			FIND_LIBRARY(shrUtils_LIBRARY_UTILS shrUtils32.lib PATHS $ENV{NVSDKCOMPUTE_ROOT}/shared/lib/Win32 ENV OpenCL_LIBPATH)
-		ENDIF( ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86" )
-		
-		FIND_LIBRARY(OPENCL_LIBRARY OpenCL.lib PATHS ${OPENCL_LIB_DIR} ENV OpenCL_LIBPATH)
-		
-		SET(OPENCL_LIBRARIES ${OPENCL_LIBRARY})
+    # On Win32 search relative to the library
+    # If we are forcing AMD or Nvidia OpenCL, those should be found before trying both
+    find_path(OPENCL_INCLUDE_DIRS CL/cl.h PATHS "${_OPENCL_INC_CAND}" "$ENV{AMDAPPSDKROOT}/include" "$ENV{CUDA_INC_PATH}")
+    find_path(_OPENCL_CPP_INCLUDE_DIRS CL/cl.hpp PATHS "${_OPENCL_INC_CAND}")
+  else(WIN32)
+    if(NVIDIA_OPENCL)
+      find_library(OPENCL_LIBRARIES OpenCL
+                  /usr/local/cuda)
+    elseif(AMD_OPENCL)
+      find_library(OPENCL_LIBRARIES OpenCL
+                    $ENV{AMDAPPSDKROOT}/lib/x86_64
+                    $ENV{AMDAPPSDKROOT}/lib/x86)
+    else()
+      find_library(OPENCL_LIBRARIES OpenCL
+        $ENV{AMDAPPSDKROOT}/lib/x86_64
+        $ENV{AMDAPPSDKROOT}/lib/x86
+        /usr/local/cuda)
+    endif()
+    get_filename_component(OPENCL_LIB_DIR ${OPENCL_LIBRARIES} PATH)
+    get_filename_component(_OPENCL_INC_CAND ${OPENCL_LIB_DIR}/../../include ABSOLUTE)
 
-		# On Win32 search relative to the library
-		FIND_PATH(OPENCL_INCLUDE_DIRS CL/cl.h PATHS "${_OPENCL_INC_CAND}" ENV OpenCL_INCPATH)
-		FIND_PATH(_OPENCL_CPP_INCLUDE_DIRS CL/cl.hpp PATHS "${_OPENCL_INC_CAND}" ENV OpenCL_INCPATH)
-		
-		SET(OPENCL_INCLUDE_DIRS ${OPENCL_INCLUDE_DIRS} )#$ENV{NVSDKCOMPUTE_ROOT}/shared/inc)
+    # The AMD SDK currently does not place its headers
+    # in /usr/include, therefore also search relative
+    # to the library
+    find_path(OPENCL_INCLUDE_DIRS CL/cl.h
+                PATHS
+                  ${_OPENCL_INC_CAND}
+                  $ENV{AMDAPPSDKROOT}/include
+                  /usr/local/cuda/include)
+    find_path(_OPENCL_CPP_INCLUDE_DIRS CL/cl.hpp
+                PATHS
+                  ${_OPENCL_INC_CAND})
+  endif (WIN32)
 
-	ELSE (WIN32)
+endif(APPLE)
 
-		# Unix style platforms
-		FIND_LIBRARY(OPENCL_LIBRARIES OpenCL
-			PATHS ENV LD_LIBRARY_PATH ENV OpenCL_LIBPATH
-		)
+find_package_handle_standard_args( OpenCL DEFAULT_MSG OPENCL_LIBRARIES OPENCL_INCLUDE_DIRS )
 
-		GET_FILENAME_COMPONENT(OPENCL_LIB_DIR ${OPENCL_LIBRARIES} PATH)
-		GET_FILENAME_COMPONENT(_OPENCL_INC_CAND ${OPENCL_LIB_DIR}/../../include ABSOLUTE)
+if( _OPENCL_CPP_INCLUDE_DIRS )
+  set( OPENCL_HAS_CPP_BINDINGS TRUE )
+  list( APPEND OPENCL_INCLUDE_DIRS ${_OPENCL_CPP_INCLUDE_DIRS} )
+  # This is often the same, so clean up
+  list( REMOVE_DUPLICATES OPENCL_INCLUDE_DIRS )
+endif( _OPENCL_CPP_INCLUDE_DIRS )
 
-		# The AMD SDK currently does not place its headers
-		# in /usr/include, therefore also search relative
-		# to the library
-		FIND_PATH(OPENCL_INCLUDE_DIRS CL/cl.h PATHS ${_OPENCL_INC_CAND} "/usr/local/cuda/include" "/opt/AMDAPP/include" ENV OpenCL_INCPATH)
-		FIND_PATH(_OPENCL_CPP_INCLUDE_DIRS CL/cl.hpp PATHS ${_OPENCL_INC_CAND} "/usr/local/cuda/include" "/opt/AMDAPP/include" ENV OpenCL_INCPATH)
-
-	ENDIF (WIN32)
-
-ENDIF (APPLE)
-
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(OpenCL DEFAULT_MSG OPENCL_LIBRARIES OPENCL_INCLUDE_DIRS)
-
-IF(_OPENCL_CPP_INCLUDE_DIRS)
-	SET( OPENCL_HAS_CPP_BINDINGS TRUE )
-	LIST( APPEND OPENCL_INCLUDE_DIRS ${_OPENCL_CPP_INCLUDE_DIRS} )
-	# This is often the same, so clean up
-	LIST( REMOVE_DUPLICATES OPENCL_INCLUDE_DIRS )
-ENDIF(_OPENCL_CPP_INCLUDE_DIRS)
-
-MARK_AS_ADVANCED(
+mark_as_advanced(
   OPENCL_INCLUDE_DIRS
-)
+  )
+
+if(OPENCL_INCLUDE_DIRS AND OPENCL_LIBRARIES)
+  set(OPENCL_FOUND TRUE)
+else()
+  set(OPENCL_FOUND FALSE)
+endif()
 
