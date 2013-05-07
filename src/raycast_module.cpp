@@ -22,7 +22,7 @@ RaycastModule::RaycastModule()
 	nmap_d = clCreateBuffer(GpuManager::context, CL_MEM_WRITE_ONLY, sizeof(cl_float3)*npixel, NULL, &err);
 	assert(err == CL_SUCCESS);
 
-#ifdef GL_INTEROP
+#ifdef MIROIR_GL_INTEROP
 	GpuManager::createSharedTexture(width, height, CL_MEM_WRITE_ONLY, tex_d, gl_tex);
 #endif
 
@@ -86,7 +86,7 @@ void RaycastModule::raycast(cl_mem TSDF, cl_float4 cam_pos[4])
 	err |= clSetKernelArg(raycast_kernel, j++, sizeof(cl_mem), (void*)&ppt_d);
 	err |= clSetKernelArg(raycast_kernel, j++, sizeof(cl_mem), (void*)&vmap_d);
 	err |= clSetKernelArg(raycast_kernel, j++, sizeof(cl_mem), (void*)&nmap_d);
-#ifdef GL_INTEROP
+#ifdef MIROIR_GL_INTEROP
 	
 	err = clEnqueueAcquireGLObjects(GpuManager::queue, 1, &tex_d, 0,0,0);
 	assert(err == CL_SUCCESS);
@@ -121,7 +121,7 @@ void RaycastModule::raycast(cl_mem TSDF, cl_float4 cam_pos[4])
 	//cl_float3* test = new cl_float3[307200];
 	//err = clEnqueueReadBuffer(GpuManager::queue, vmap_d, CL_TRUE, 0, sizeof(cl_float3)*npixel, vmap_h, 0, NULL, NULL);
 	//err = clEnqueueReadBuffer(GpuManager::queue, nmap_d, CL_TRUE, 0, sizeof(cl_float3)*npixel, nmap_h, 0, NULL, NULL);
-#ifdef GL_INTEROP
+#ifdef MIROIR_GL_INTEROP
 	err = clEnqueueReleaseGLObjects(GpuManager::queue, 1, &tex_d, 0,0,0);
 	//err = clEnqueueReleaseGLObjects(GpuManager::queue, 1, &vmap_d, 0,0,0);
 	//err |= clEnqueueReleaseGLObjects(GpuManager::queue, 1, &nmap_d, 0,0,0);
@@ -200,7 +200,7 @@ void RaycastModule::onWindowResized(int width, int height)
 	tex_dim[0] = width;
 	tex_dim[1] = height;
 
-#ifdef GL_INTEROP
+#ifdef MIROIR_GL_INTEROP
 	//glDeleteTextures(1, &gl_tex);
 
 	//// creating the texture to render full screen quad

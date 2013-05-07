@@ -23,7 +23,7 @@ UpdateReconstructionModule::UpdateReconstructionModule() : current_frame(0), ena
 		buf[i].s[1] = -SHORT_MAX;
 	}
 
-	TSDF_d = clCreateBuffer(GpuManager::context, CL_MEM_READ_WRITE, sizeof(cl_short2)*RESX*RESY*RESZ, buf, &err);
+	TSDF_d = clCreateBuffer(GpuManager::context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, sizeof(cl_short2)*RESX*RESY*RESZ, buf, &err);
 	assert(err == CL_SUCCESS);
 	clEnqueueWriteBuffer(GpuManager::queue, TSDF_d, true, 0, sizeof(cl_short2)*RESX*RESY*RESZ, buf, 0, NULL, NULL);
 	

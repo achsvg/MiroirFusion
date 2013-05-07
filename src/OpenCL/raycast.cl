@@ -105,7 +105,7 @@ __kernel void raycast(
 	__global const float2* ppt,		// principal point 
 	__global float3* vmap,
 	__global float3* nmap,
-#ifdef GL_INTEROP
+#ifdef MIROIR_GL_INTEROP
 	__write_only image2d_t frameBuffer,
 #endif
 	__constant struct TsdfParams* params
@@ -114,7 +114,6 @@ __kernel void raycast(
 	// cast a ray for each pixel (u,v)
 	const int u = get_global_id(0);
 	const int v = get_global_id(1);
-	int2 coord = {u, v};
 	
 	int w = *width;
 	int h = *height;
@@ -140,8 +139,6 @@ __kernel void raycast(
 	
 	int pix_idx = w*v+u;
 	
-	float4 color = {0.0, 0.0, 0.0, 1.0};
-	
 	// kinect sensor range is ~[0.4,8]
 	float step = l_params.mu*0.8f;
 		
@@ -156,7 +153,9 @@ __kernel void raycast(
 	int3 resolution = { convert_int(l_params.resolution[0]), convert_int(l_params.resolution[1]), convert_int(l_params.resolution[2]) };
 	//int3 resolution = { (l_params.resolution[0]), (l_params.resolution[1]), (l_params.resolution[2]) };
 	
-	#ifdef GL_INTEROP
+	#ifdef MIROIR_GL_INTEROP
+		int2 coord = {u, v};
+		float4 color = {0.0, 0.0, 0.0, 1.0};
 		write_imagef(frameBuffer, coord, color);
 	#endif
 	
@@ -270,10 +269,6 @@ __kernel void raycast(
 			n = normalize(n);
 			
 			nmap[pix_idx] = n;
-
-			color.x = n.x * 0.5 + 0.5f;
-			color.y = n.y * 0.5 + 0.5f;
-			color.z = n.z * 0.5 + 0.5f;
 			
 			// phong shading
 			
@@ -296,7 +291,10 @@ __kernel void raycast(
 				// color += lightSpec * matSpec * specular * attenuation;
 			// }
 			
-			#ifdef GL_INTEROP
+			#ifdef MIROIR_GL_INTEROP
+				color.x = n.x * 0.5 + 0.5f;
+				color.y = n.y * 0.5 + 0.5f;
+				color.z = n.z * 0.5 + 0.5f;
 				write_imagef(frameBuffer, coord, color);
 			#endif
 			

@@ -40,6 +40,7 @@ cl_platform_id GpuManager::platforms;
 bool GpuManager::cl_init = false;
 bool GpuManager::gl_init = false;
 boost::mutex GpuManager::mutex;
+cl_ulong GpuManager::max_alloc_size;
 
 cl_mem GpuManager::createSharedBuffer(GLsizeiptr size, const void* data, cl_mem_flags flags)
 {
@@ -182,10 +183,13 @@ void GpuManager::initCL(bool kernel_recompile)
 				SetEnvironmentVariable("CUDA_CACHE_DISABLE", "1");
 			#endif
 		}
-#ifdef GL_INTEROP
+#ifdef MIROIR_GL_INTEROP
 		error = clGetPlatformIDs( 1, &platforms, NULL );
 		assert(error == CL_SUCCESS);
-		clGetDeviceIDs(platforms, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
+		clGetDeviceIDs(platforms, CL_DEVICE_TYPE_DEFAULT, 1, &device, NULL);
+
+		assert(device != NULL);
+
 		// Get string containing supported device extensions
 		size_t ext_size = 0;
 		char* ext_string = new char[1024];
@@ -254,13 +258,16 @@ void GpuManager::initCL(bool kernel_recompile)
 		assert(error == CL_SUCCESS);
 //////////////////////////////////////////////////////////////////////////////////////////////
 #endif
-		cl_ulong max_alloc;
-		clGetDeviceInfo(device, CL_DEVICE_MAX_MEM_ALLOC_SIZE, sizeof(cl_ulong), &max_alloc, NULL);
-		std::cout << "maximum allocation size: " << max_alloc << std::endl;
-		clGetDeviceInfo(device, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(cl_ulong), &max_alloc, NULL); 
-		std::cout << "local memory size: " << max_alloc << std::endl;
-		clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(cl_ulong), &max_alloc, NULL);
-		std::cout << "max work group size (max threads per block): " << max_alloc << std::endl;
+		clGetDeviceInfo(device, CL_DEVICE_MAX_MEM_ALLOC_SIZE, sizeof(cl_ulong), &max_alloc_size, NULL);
+		std::cout << "maximum allocation size: " << max_alloc_size << std::endl;
+
+		cl_ulong local_mem;
+		clGetDeviceInfo(device, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(cl_ulong), &local_mem, NULL); 
+		std::cout << "local memory size: " << local_mem << std::endl;
+
+		cl_ulong max_wrk_grp;
+		clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(cl_ulong), &max_wrk_grp, NULL);
+		std::cout << "max work group size (max threads per block): " << max_wrk_grp << std::endl;
 
 		cl_init = true;
 	}
@@ -390,7 +397,7 @@ cl_kernel GpuManager::createKernel(char* filename, const char* kernel_name, bool
 	// memory usage report: -cl-nv-verbose
 	std::string arg = /*"-cl-mad-enable"*/"-I ../src/OpenCL -Werror";
 	if(fastMath) arg += " -cl-mad-enable -cl-fast-relaxed-math";
-	err = clBuildProgram(program, 1, &(GpuManager::device), arg.c_str(), GpuManager::buildProgramNotify, NULL);
+	err = clBuildProgram(program, 1, &(GpuManager::device), arg.c_str(), NULL, NULL);
 	
 	// Shows the log
 	char* build_log;
@@ -405,6 +412,10 @@ cl_kernel GpuManager::createKernel(char* filename, const char* kernel_name, bool
 	delete[] build_log;
 
 	assert(err == CL_SUCCESS);
+
+	cl_build_status build_status;
+	clGetProgramBuildInfo(program, GpuManager::device, CL_PROGRAM_BUILD_STATUS, sizeof(cl_build_status), &build_status, NULL);
+	assert(build_status == CL_BUILD_SUCCESS);
 
 	// extract the kernel
 	cl_kernel k = clCreateKernel(program, kernel_name, &err);

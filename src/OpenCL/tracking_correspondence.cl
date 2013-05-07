@@ -121,7 +121,7 @@ __kernel void find_correspondences
 	float3 v_tmp = vmap_raycast[idx];
 	float4 v_prev = { v_tmp.x, v_tmp.y, v_tmp.z, 0.0f };	
 		
-	if(!_isnan(v_prev))
+	if(!_isnan4(v_prev))
 	{
 		float4 cam_pose_inv[4] = {cam_pose_inv_p[0], cam_pose_inv_p[1], cam_pose_inv_p[2], cam_pose_inv_p[3]};
 		
@@ -139,7 +139,7 @@ __kernel void find_correspondences
 		{
 			float3 v_corresp_tmp = vmap_sensor[w * py + px];	
 			
-			if(!_isnan(v_corresp_tmp))
+			if(!_isnan3(v_corresp_tmp))
 			{
 				float4 v_corresp_cs = {v_corresp_tmp.x, v_corresp_tmp.y, v_corresp_tmp.z, 1.0f}; // in cam space
 				
@@ -157,7 +157,7 @@ __kernel void find_correspondences
 				{
 					vcorresp[idx].x = px;
 					vcorresp[idx].y = py;
-					atom_inc(counter);
+					//atom_inc(counter);
 					return;
 				}
 			}

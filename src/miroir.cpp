@@ -183,7 +183,7 @@ bool initGL()
 
 int main( int argc, char ** argv )
 {
-#ifdef GL_INTEROP
+#ifdef MIROIR_GL_INTEROP
 	if(!initGL())
 		return -1;
 #endif
@@ -196,7 +196,7 @@ int main( int argc, char ** argv )
 	miroir.initGlobalBuffers();
 	miroir.buildMiroir();
 
-#ifdef GL_INTEROP
+#ifdef MIROIR_GL_INTEROP
 	miroir.getGrabber()->start();
 	do
 	{

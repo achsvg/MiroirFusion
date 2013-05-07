@@ -6,7 +6,7 @@ __kernel void TSDF(	__global short2* F,
 					__global const int* width, 
 					__global const int* height,
 					//__global float4 cam_pos[4],
-					__global float4 cam_pos_inv[4],
+					__global float4* cam_pos_inv,
 					__global ushort* dmap,
 					__global ulong* k,				// current frame
 					__global const float* fl,		// focal length
@@ -17,7 +17,7 @@ __kernel void TSDF(	__global short2* F,
 	const int voxel_x = get_global_id(0);
 	const int voxel_y = get_global_id(1);
 	float focal_length = *fl;
-	ulong frame = *k;
+	//ulong frame = *k;
 	
 	float4 cam_pos_inv_l[4] = { cam_pos_inv[0], cam_pos_inv[1], cam_pos_inv[2], cam_pos_inv[3] };
 	int w = *width;

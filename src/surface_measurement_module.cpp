@@ -209,7 +209,7 @@ void SurfaceMeasurementModule::processData()
 	
 	// create the cloud from the vertex map
 	//cloud_filtered = convertToXYZPointCloud( static_cast<pcl::OpenNIGrabber*>(MiroirManager::getGrabber()), dm_filtered );
-#ifndef GL_INTEROP
+#ifndef MIROIR_GL_INTEROP
 	if(MiroirManager::getShowMode() == DEPTH_MAP_BIL)
 	{
 		boost::mutex::scoped_lock lock(MiroirManager::getMutex());

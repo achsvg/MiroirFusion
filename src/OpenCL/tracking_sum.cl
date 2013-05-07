@@ -25,12 +25,12 @@ void summand(int px, int idx, int w,
 	float3 n_prev = nmap_prev[px];
 	bool ok = true;
 	
-	ok = !_isnan(corresp_p) && !_isnan(v_prev) && !_isnan(n_prev);
+	ok = !_isnan2(corresp_p) && !_isnan3(v_prev) && !_isnan3(n_prev);
 	
 	int corresp_idx = ok?(w * convert_int(corresp_p.y) + convert_int(corresp_p.x)):0;
 	float3 corresp_v = vmap[corresp_idx];
 	
-	ok = ok && !_isnan(corresp_v) && !isNull(corresp_v);
+	ok = ok && !_isnan3(corresp_v) && !isNull(corresp_v);
 	
 	if(ok)
 	{
@@ -133,7 +133,7 @@ void compute_sums
 	
 	const int local_id = get_local_id(0);
 	const int thid = get_global_id(0);
-	int group_idx = 2 * thid / WORK_GROUP_SIZE * WORK_GROUP_SIZE;
+	//int group_idx = 2 * thid / WORK_GROUP_SIZE * WORK_GROUP_SIZE;
 	
 	if(thid < ((*size) / 2)) // max thid = 1215, size = 2400, size/2 = 1200
 	{
@@ -191,7 +191,7 @@ void compute_block_sums
 	const int thid = get_global_id(0);
 	
 	int w = *width;
-	int group_idx = thid / WORK_GROUP_SIZE * WORK_GROUP_SIZE;// - 1;//thid - (thid%WORK_GROUP_SIZE);
+	//int group_idx = thid / WORK_GROUP_SIZE * WORK_GROUP_SIZE;// - 1;//thid - (thid%WORK_GROUP_SIZE);
 	
 	summand(thid*2, 2*local_id, w, cam_est_pose, corresp, vmap, vmap_prev, nmap_prev, tempA, tempB);
 	summand(thid*2+1, 2*local_id+1, w, cam_est_pose, corresp, vmap, vmap_prev, nmap_prev, tempA, tempB);

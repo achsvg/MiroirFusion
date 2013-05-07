@@ -24,6 +24,8 @@ public:
 	static cl_int error;
 	static cl_platform_id platforms;
 
+	static cl_ulong max_alloc_size;
+
 	static void initCL(bool kernel_recompile);
 	static void cleanCL();
 	static char* loadProgSource(char* filename);

@@ -20,17 +20,17 @@ struct TsdfParams
 #define CONFLICT_FREE_OFFSET(n) ((n) >> NUM_BANKS + (n) >> (2 * LOG_NUM_BANKS))  
 
 // m is column wise, i.e m[0] is column 0, m[1] column 1, etc.
-bool __OVERLOADABLE__ _isnan(float3 v)
+bool _isnan3(float3 v)
 {
 	return isnan(v.x) || isnan(v.y) || isnan(v.z);
 }
 
-bool __OVERLOADABLE__ _isnan(float4 v)
+bool _isnan4(float4 v)
 {
 	return isnan(v.x) || isnan(v.y) || isnan(v.z) || isnan(v.w);
 }
 
-bool __OVERLOADABLE__ _isnan(float2 v)
+bool _isnan2(float2 v)
 {
 	return isnan(v.x) || isnan(v.y);
 }
