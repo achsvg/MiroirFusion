@@ -1,4 +1,5 @@
 #include "gpu_manager.h"
+#include "config.h"
 
 #include <assert.h>
 #include <iostream>
@@ -126,7 +127,7 @@ void GpuManager::createSharedTexture(int width, int height, cl_mem_flags flags, 
 	//return cl_scene;
 }
 
-char* GpuManager::loadProgSource( char* filename )
+char* GpuManager::loadProgSource( const char* filename )
 {
 	FILE* fh;
 	char* source;
@@ -382,7 +383,7 @@ GLuint GpuManager::createProgram(char* vert_filename, char* frag_filename, GLuin
 	return program;
 }
 
-cl_kernel GpuManager::createKernel(char* filename, const char* kernel_name, bool fastMath)
+cl_kernel GpuManager::createKernel(const char* filename, const char* kernel_name, bool fastMath)
 {
 	cl_int err; 
 
@@ -395,7 +396,7 @@ cl_kernel GpuManager::createKernel(char* filename, const char* kernel_name, bool
 	assert(err == CL_SUCCESS);
 		
 	// memory usage report: -cl-nv-verbose
-	std::string arg = /*"-cl-mad-enable"*/"-I ../src/OpenCL -Werror";
+	std::string arg = /*"-cl-mad-enable"*/std::string("-I ")+std::string(KERNEL_PATH)+std::string(" -Werror");
 	if(fastMath) arg += " -cl-mad-enable -cl-fast-relaxed-math";
 	err = clBuildProgram(program, 1, &(GpuManager::device), arg.c_str(), NULL, NULL);
 	

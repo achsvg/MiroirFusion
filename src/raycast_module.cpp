@@ -7,7 +7,7 @@
 
 RaycastModule::RaycastModule()
 {	
-	raycast_kernel = GpuManager::createKernel("../src/OpenCL/raycast.cl", "raycast");
+	raycast_kernel = GpuManager::createKernel((std::string(KERNEL_PATH)+std::string("raycast.cl")).c_str(), "raycast");
 
 	int width, height;
 	MiroirManager::getSensorDimensions(width, height);

@@ -92,8 +92,8 @@ SurfaceMeasurementModule::SurfaceMeasurementModule( int w, int h, float focal_le
 	cl_int err; 
 
 	// gpu programs	
-	measurement_vertices = GpuManager::createKernel("../src/OpenCL/bilateral.cl", "measurement_vertices");
-	measurement_normals = GpuManager::createKernel("../src/OpenCL/bilateral.cl", "measurement_normals");
+	measurement_vertices = GpuManager::createKernel((std::string(KERNEL_PATH)+std::string("bilateral.cl")).c_str(), "measurement_vertices");
+	measurement_normals = GpuManager::createKernel((std::string(KERNEL_PATH)+std::string("bilateral.cl")).c_str(), "measurement_normals");
 
 	dmap_h = new unsigned short[NPIX];
 	vmap_h = new cl_float3[NPIX];

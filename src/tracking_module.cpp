@@ -20,9 +20,9 @@ TrackingModule::TrackingModule()
 	cam_pose[2] = c3;
 	cam_pose[3] = c4;
 
-	find_corresp = GpuManager::createKernel("../src/OpenCL/tracking_correspondence.cl", "find_correspondences");
-	compute_block_sum = GpuManager::createKernel("../src/OpenCL/tracking_sum.cl", "compute_block_sums");
-	compute_sum = GpuManager::createKernel("../src/OpenCL/tracking_sum.cl", "compute_sums");
+	find_corresp = GpuManager::createKernel((std::string(KERNEL_PATH)+std::string("tracking_correspondence.cl")).c_str(), "find_correspondences");
+	compute_block_sum = GpuManager::createKernel((std::string(KERNEL_PATH)+std::string("tracking_sum.cl")).c_str(), "compute_block_sums");
+	compute_sum = GpuManager::createKernel((std::string(KERNEL_PATH)+std::string("tracking_sum.cl")).c_str(), "compute_sums");
 
 	corresp_h = new cl_float2[NPIX];
 

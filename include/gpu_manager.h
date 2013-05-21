@@ -28,10 +28,10 @@ public:
 
 	static void initCL(bool kernel_recompile);
 	static void cleanCL();
-	static char* loadProgSource(char* filename);
+	static char* loadProgSource(const char* filename);
 	
 	static GLuint createProgram(char* vert_filename, char* frag_filename, GLuint& vshader, GLuint& fshader);
-	static cl_kernel createKernel(char* filename, const char* kernel_name, bool fastMath=false);
+	static cl_kernel createKernel(const char* filename, const char* kernel_name, bool fastMath=false);
 	static cl_mem createSharedBuffer(GLsizeiptr size, const void* data, cl_mem_flags flags);
 	static void createSharedTexture(int width, int height, cl_mem_flags flags, cl_mem& cl_tex, GLuint& gl_tex);
 

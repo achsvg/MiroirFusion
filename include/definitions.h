@@ -9,6 +9,8 @@
 #include <boost/thread/thread.hpp>
 #include <pcl/point_cloud.h>
 
+#include "config.h"
+
 //#include "surface_measurement_module.h"
 
 #define RESX 512.0f

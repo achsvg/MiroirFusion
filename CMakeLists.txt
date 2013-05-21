@@ -21,6 +21,11 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
+# path to cl kernel files
+set( KERNEL_PATH "\"${PROJECT_SOURCE_DIR}/src/OpenCL/\"" )
+configure_file ( "${PROJECT_SOURCE_DIR}/include/config.h.in" "${PROJECT_BINARY_DIR}/config.h" )
+include_directories("${PROJECT_BINARY_DIR}")
+
 #OpenCL
 find_package(OPENCL REQUIRED)
 find_package(GLEW REQUIRED)

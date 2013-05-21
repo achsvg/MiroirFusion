@@ -10,7 +10,7 @@
 
 UpdateReconstructionModule::UpdateReconstructionModule() : current_frame(0), enable(true)
 {
-	kernel = GpuManager::createKernel("../src/OpenCL/TSDF.cl", "TSDF");
+	kernel = GpuManager::createKernel((std::string(KERNEL_PATH)+std::string("TSDF.cl")).c_str(), "TSDF");
 
 	// TSDF stored in GPU
 	cl_int err;
