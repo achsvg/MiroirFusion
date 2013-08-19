@@ -1,7 +1,7 @@
 MiroirFusion
 ============
 
-Hi, as an exercise I set myself into implementing an OpenCL version of the KinectFusion (http://research.microsoft.com/en-us/projects/surfacerecon/) many months ago.
+This is an OpenCL version of the KinectFusion (http://research.microsoft.com/en-us/projects/surfacerecon/).
 The OpenCL code is mainly inspired by the CUDA implementation from the PCL project (http://pointclouds.org/).
 
 As I don't have a lot of time to dedicate to this project anymore, I just decided to release it to the public and maybe you guys will contribute to improving it :)
