@@ -6,8 +6,6 @@ The OpenCL code is mainly inspired by the CUDA implementation from the PCL proje
 
 As I don't have a lot of time to dedicate to this project anymore, I just decided to release it to the public and maybe you guys will contribute to improving it :)
 
-The code is far from being optimal nor clean, however from my testings it is working (I'm using a GT330) at 5-10 fps. 
-
 The application uses the PCL visualizer and can also use GLFW to show the raycast from the camera (uncomment GL_INTEROP in gpu_def.h).
 
 Compiling
